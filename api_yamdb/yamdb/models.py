@@ -1,11 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-
-User = get_user_model()
-
+from django.db.models import Avg
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Review(models.Model):
-    RATING = ((0, '0'), (1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5'), (6, '6'), (7, '7'), (8, '8'), (9, '9'), (10, '10'),)
 
     text = models.CharField(
         verbose_name='Рецензия',
@@ -15,14 +13,12 @@ class Review(models.Model):
         Title, on_delete=models.CASCADE, related_name="review")
 
     pub_date = models.DateTimeField(
-        "Дата добавления", auto_now_add=True, db_index=True
-    )
+        "Дата добавления", auto_now_add=True, db_index=True)
 
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="review"
-    )
+        User, on_delete=models.CASCADE, related_name="review")
 
-    score = models.IntegerField(choices=RATING, help_text="оцените от 1 до 10")
+    score = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)], help_text="оцените от 1 до 10")
 
     def __str__(self):
         return self.text[:15]
@@ -31,8 +27,8 @@ class Review(models.Model):
         verbose_name = 'Рецензия'
         verbose_name_plural = 'Рецензии'
 
-    def overall_rating(self):
-        return self.objects.aggregate(sum('score'))
+    # def overall_rating(self):
+    #     return self.objects.aggregate(Avg('score'))
 
 
 class Comment(models.Model):
