@@ -2,9 +2,56 @@ from django.db import models
 from django.db.models import Avg
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+from django.contrib.auth.models import AbstractUser
+
+class User(AbstractUser):
+    ROLE_CHOICES = (
+        ('user', 'user'),
+        ('moderator', 'moderator'),
+        ('admin', 'admin')
+    )
+    email = models.EmailField(unique=True)
+    confirmation_code = models.CharField(
+        max_length=10,
+        blank=True,
+        null=True,
+        unique=True
+    )
+    bio = models.TextField(null=True, blank=True, verbose_name="О себе")
+    role = models.CharField(
+        max_length=20, choices=ROLE_CHOICES, default='User')
+
+#удалить выше
+
+class Genre(models.Model):
+    name = models.CharField(max_length=150, unique=True)
+    slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return self.slug
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=150, unique=True)
+    slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Title(models.Model):
+    name = models.CharField(max_length=200)
+    year = models.IntegerField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    genre = models.ManyToManyField(Genre, blank=True)
+    category = models.ForeignKey(Category, blank=True,
+                                 on_delete=models.SET_NULL, related_name='titles', null=True)
+    rating = models.IntegerField(blank=True, null=True)
+
+
 class Review(models.Model):
 
-    text = models.CharField(
+    text = models.TextField(
         verbose_name='Рецензия',
         help_text='Введите текст рецензии')
 
