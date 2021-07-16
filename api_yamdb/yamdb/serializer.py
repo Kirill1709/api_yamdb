@@ -11,6 +11,15 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
 
 
+class UserEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+
+
+class TokenSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    confirmation_code = serializers.CharField(max_length=10)
+
+
 # class CommentSerializer(serializers.ModelSerializer):
 #     author = serializers.SlugField(source='author.username')
 
