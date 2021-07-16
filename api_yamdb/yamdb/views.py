@@ -75,6 +75,3 @@ def get_token(request):
             data={'confirmation_code': 'Несоответствие кода подтверждения'})
     token = AccessToken.for_user(user)
     return Response({f'token: {token}'})
-
-
-    
