@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models import Avg
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+
 class Review(models.Model):
 
     text = models.TextField( 
