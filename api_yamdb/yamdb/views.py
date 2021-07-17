@@ -1,17 +1,17 @@
-from django.core.exceptions import ValidationError
-from rest_framework import viewsets
-
-from .models import User
-from .serializer import UserSerializer, UserEmailSerializer, TokenSerializer
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
 import random
+
+from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
-from rest_framework.decorators import api_view
 from django.core.validators import validate_email
 from django.shortcuts import get_object_or_404
+from rest_framework import viewsets
+from rest_framework.decorators import action, api_view
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
+
+from .models import User
+from .serializer import TokenSerializer, UserEmailSerializer, UserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -55,7 +55,7 @@ def get_confirmation_code(request):
     send_mail(
         'Код подтверждения',
         f'Ваш код подтверждения: {confirmation_code}',
-        'admin@admin.com',
+        'admin@yandex.ru',
         [email]
     )
     return Response(
