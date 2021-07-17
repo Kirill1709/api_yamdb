@@ -30,7 +30,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'django_filters',
     'yamdb',
-
+    'djoser',
 ]
 
 MIDDLEWARE = [
@@ -132,6 +132,9 @@ REST_FRAMEWORK = {
 
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=365),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")

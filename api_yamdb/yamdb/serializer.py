@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Category, Comment, Genre, Review, Title
+from .models import Category, Comment, Genre, Review, Title, User
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -21,8 +21,10 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class TitleSerializer(serializers.ModelSerializer):
 
-    category = serializers.SlugRelatedField(slug_field='slug', queryset=Category.objects.all())
-    genre = serializers.SlugRelatedField(many=True, slug_field='slug', queryset=Genre.objects.all())
+    category = serializers.SlugRelatedField(slug_field='slug',
+                                            queryset=Category.objects.all())
+    genre = serializers.SlugRelatedField(many=True, slug_field='slug',
+                                         queryset=Genre.objects.all())
     rating = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -67,3 +69,20 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = '__all__'
         model = Review
         read_only_fields = ('title', )
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = (
+            'first_name', 'last_name', 'username', 'bio', 'email', 'role')
+        model = User
+
+
+class UserEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+
+
+class TokenSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    confirmation_code = serializers.CharField(max_length=10)

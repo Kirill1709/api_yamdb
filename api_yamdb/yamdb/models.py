@@ -1,6 +1,28 @@
+from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Avg
-from django.core.validators import MinValueValidator, MaxValueValidator
+
+
+class User(AbstractUser):
+    ROLE_CHOICES = (
+        ('user', 'user'),
+        ('moderator', 'moderator'),
+        ('admin', 'admin')
+    )
+    email = models.EmailField(unique=True)
+    confirmation_code = models.CharField(
+        max_length=10,
+        blank=True,
+        null=True,
+        unique=True
+    )
+    bio = models.TextField(null=True, blank=True, verbose_name="О себе")
+    role = models.CharField(
+        max_length=20, choices=ROLE_CHOICES, default='User')
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
 
 
 class Genre(models.Model):
@@ -25,7 +47,8 @@ class Title(models.Model):
     description = models.TextField(blank=True, null=True)
     genre = models.ManyToManyField(Genre, blank=True)
     category = models.ForeignKey(Category, blank=True,
-                                 on_delete=models.SET_NULL, related_name='titles', null=True)
+                                 on_delete=models.SET_NULL,
+                                 related_name='titles', null=True)
     rating = models.IntegerField(blank=True, null=True)
 
 
