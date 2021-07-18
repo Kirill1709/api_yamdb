@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 
 from .models import Category, Comment, Genre, Review, Title, User
 
@@ -60,20 +59,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username', read_only=True)
     score = serializers.IntegerField(max_value=10, min_value=1)
 
-    # def validate(self, data):
-
-    #     user = self.context['request'].user
-    #     title = self.initial_data['title']
-    #     if self.context['request'].method == 'POST'
-    #        and Review.objects.filter(
-    #             title=title, author=user).exists:
-    #         raise serializers.ValidationError('Вы уже оставили рецензию!')
-
     class Meta:
         fields = '__all__'
         model = Review
         read_only_fields = ('title', )
-        # validators = [UniqueTogetherValidator(queryset=Review.objects.all(), fields=('title', 'author'))]
 
 
 class UserSerializer(serializers.ModelSerializer):
