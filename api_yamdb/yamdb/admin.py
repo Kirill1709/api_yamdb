@@ -1,10 +1,15 @@
 from django.contrib import admin
 
-from .models import Comment, Review, User
+from .models import Comment, Review, Title, User
 
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Title)
+class TitlewAdmin(admin.ModelAdmin):
     pass
 
 

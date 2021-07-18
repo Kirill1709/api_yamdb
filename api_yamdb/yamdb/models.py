@@ -77,11 +77,12 @@ class Review(models.Model):
     class Meta:
         verbose_name = 'Рецензия'
         verbose_name_plural = 'Рецензии'
+        unique_together = ('title', 'author', )
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.title.rating = Review.objects.filter(
-            title=self.id).aggregate(Avg('score'))['score__avg']
+            title_id=self.title).aggregate(Avg('score'))['score__avg']
         self.title.save()
 
 
