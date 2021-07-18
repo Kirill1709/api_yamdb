@@ -10,5 +10,5 @@ pytest
 pytest-pythonpath==0.7.3
 pytest-django
 djangorestframework
-django-filter
+django-filter==2.4.0
 djangorestframework-simplejwt
