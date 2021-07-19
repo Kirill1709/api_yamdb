@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -29,6 +31,10 @@ class Genre(models.Model):
     name = models.CharField(max_length=150, unique=True)
     slug = models.SlugField(unique=True)
 
+    class Meta:
+        verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
+
     def __str__(self):
         return self.slug
 
@@ -37,19 +43,35 @@ class Category(models.Model):
     name = models.CharField(max_length=150, unique=True)
     slug = models.SlugField(unique=True)
 
+    class Meta:
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
+        ordering = ('name',)
+
     def __str__(self):
         return self.name
 
 
 class Title(models.Model):
     name = models.CharField(max_length=200)
-    year = models.IntegerField(blank=True, null=True)
+    year = models.PositiveSmallIntegerField(
+        db_index=True,
+        validators=(MaxValueValidator(datetime.datetime.now().year),)
+    )
     description = models.TextField(blank=True, null=True)
     genre = models.ManyToManyField(Genre, blank=True)
     category = models.ForeignKey(Category, blank=True,
                                  on_delete=models.SET_NULL,
+
                                  related_name='titles', null=True)
-    rating = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Название'
+        verbose_name_plural = 'Названия'
+        ordering = ('-year',)
+
+    def __str__(self):
+        return self.name
 
 
 class Review(models.Model):
