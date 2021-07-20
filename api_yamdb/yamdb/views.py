@@ -10,7 +10,6 @@ from rest_framework.decorators import action, api_view
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import (CreateAPIView, DestroyAPIView, ListAPIView,
                                      RetrieveAPIView, UpdateAPIView)
-from rest_framework.mixins import CreateModelMixin, DestroyModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
@@ -55,22 +54,10 @@ class GenreViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
-    permission_classes = (IsAdminOrReadOnly, )
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = TitleFilter
-
-    def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
-            return TitleReadSerializer
-        return TitleWriteSerializer
-
-
 class TitleViewSet(viewsets.GenericViewSet, CreateAPIView, DestroyAPIView, ListAPIView,
                    RetrieveAPIView, UpdateAPIView):
     queryset = Title.objects.all()
-    permission_classes = (IsAdminOrReadOnly, )
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
 
