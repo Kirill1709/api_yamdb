@@ -8,9 +8,13 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, serializers, status, viewsets
 from rest_framework.decorators import action, api_view
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.generics import (CreateAPIView, DestroyAPIView, ListAPIView,
+                                     RetrieveAPIView, UpdateAPIView)
+from rest_framework.mixins import CreateModelMixin, DestroyModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
+
 
 from .filters import TitleFilter
 from .models import Category, Genre, Review, Title, User
@@ -56,6 +60,23 @@ class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly, )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return TitleReadSerializer
+        return TitleWriteSerializer
+
+
+class TitleViewSet(viewsets.GenericViewSet, CreateAPIView, DestroyAPIView, ListAPIView,
+                   RetrieveAPIView, UpdateAPIView):
+    queryset = Title.objects.all()
+    permission_classes = (IsAdminOrReadOnly, )
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
+
+    def get_object(self):
+        obj = get_object_or_404(Title, pk=self.kwargs.get('pk'))
+        return obj
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):

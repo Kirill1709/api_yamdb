@@ -38,6 +38,7 @@ class TitleReadSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'year',
                   'description', 'genre', 'category', 'rating')
         model = Title
+        lookup_field = 'slug'
 
 
 class CommentSerializer(serializers.ModelSerializer):
