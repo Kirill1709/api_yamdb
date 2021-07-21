@@ -1,27 +1,22 @@
-import random
-
-from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
-from django.core.validators import validate_email
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, serializers, status, viewsets
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.generics import (CreateAPIView, DestroyAPIView, ListAPIView,
-                                     RetrieveAPIView, UpdateAPIView)
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-
+from django.contrib.auth.tokens import default_token_generator
+from django.conf import settings
 
 from .filters import TitleFilter
 from .models import Category, Genre, Review, Title, User
 from .permissions import IsAdminOrReadOnly, IsAutrhOrAdminOrModeratorOrReadOnly
 from .serializer import (CategorySerializer, CommentSerializer,
                          GenreSerializer, ReviewSerializer,
-                         TitleReadSerializer, TitleWriteSerializer, TokenSerializer,
-                         UserEmailSerializer, UserSerializer)
+                         TitleReadSerializer, TitleWriteSerializer,
+                         TokenSerializer, UserEmailSerializer, UserSerializer)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -54,16 +49,11 @@ class GenreViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-class TitleViewSet(viewsets.GenericViewSet, CreateAPIView, DestroyAPIView, ListAPIView,
-                   RetrieveAPIView, UpdateAPIView):
+class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAdminOrReadOnly, )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
-
-    def get_object(self):
-        obj = get_object_or_404(Title, pk=self.kwargs.get('pk'))
-        return obj
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
@@ -135,24 +125,22 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def get_confirmation_code(request):
-    serializer = UserEmailSerializer(request.data)
+    serializer = UserEmailSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
     email = serializer.data['email']
     try:
-        validate_email(email)
-    except ValidationError:
-        return Response(
-            data={'message': 'Данные введены неверно'})
-    if not User.objects.filter(email=email).exists():
-        User.objects.create_user(username=email, email=email)
-    confirmation_code = random.randint(1000000000, 9999999999)
-    user = User.objects.filter(email=email)
-    user.update(confirmation_code=confirmation_code)
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        user = User.objects.create_user(username=email, email=email)
+    confirmation_code = default_token_generator.make_token(user)
     send_mail(
         'Код подтверждения',
         f'Ваш код подтверждения: {confirmation_code}',
-        'admin@yandex.ru',
-        [email]
+        settings.DEFAULT_FROM_EMAIL,
+        [email],
+        fail_silently=False
     )
     return Response(
         data={'message': f'Код выслан на email: {email}'}
@@ -160,13 +148,15 @@ def get_confirmation_code(request):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def get_token(request):
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     email = serializer.data['email']
     confirmation_code = serializer.data['confirmation_code']
     user = get_object_or_404(User, email=email)
-    if confirmation_code != user.confirmation_code:
+    if not default_token_generator.check_token(
+            user=user, token=confirmation_code):
         return Response(
             data={'confirmation_code': 'Несоответствие кода подтверждения'})
     token = AccessToken.for_user(user)
