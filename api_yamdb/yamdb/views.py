@@ -16,7 +16,8 @@ from .permissions import IsAdminOrReadOnly, IsAutrhOrAdminOrModeratorOrReadOnly
 from .serializer import (CategorySerializer, CommentSerializer,
                          GenreSerializer, ReviewSerializer,
                          TitleReadSerializer, TitleWriteSerializer,
-                         TokenSerializer, UserEmailSerializer, UserSerializer)
+                         UserAdminSerializer, TokenSerializer,
+                         UserEmailSerializer, UserSerializer)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -102,9 +103,13 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
     lookup_field = 'username'
     permission_classes = [IsAdminUser]
+
+    def get_serializer_class(self):
+        if self.request.user.is_admin:
+            return UserAdminSerializer
+        return UserSerializer
 
     @action(
         detail=False,
@@ -113,7 +118,7 @@ class UserViewSet(viewsets.ModelViewSet):
     )
     def me(self, request):
         if request.method == 'PATCH':
-            serializer = UserSerializer(
+            serializer = self.get_serializer(
                 request.user,
                 data=request.data,
                 partial=True
