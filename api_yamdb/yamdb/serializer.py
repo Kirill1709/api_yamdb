@@ -80,6 +80,15 @@ class UserSerializer(serializers.ModelSerializer):
         fields = (
             'first_name', 'last_name', 'username', 'bio', 'email', 'role')
         model = User
+        read_only_fields = ('role', )
+
+
+class UserAdminSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = (
+            'first_name', 'last_name', 'username', 'bio', 'email', 'role')
+        model = User
 
 
 class UserEmailSerializer(serializers.Serializer):
@@ -88,4 +97,4 @@ class UserEmailSerializer(serializers.Serializer):
 
 class TokenSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
-    confirmation_code = serializers.CharField(max_length=10)
+    confirmation_code = serializers.CharField(max_length=50)

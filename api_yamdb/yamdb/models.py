@@ -6,24 +6,26 @@ from django.db import models
 
 
 class User(AbstractUser):
+    USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
     ROLE_CHOICES = (
-        ('user', 'user'),
-        ('moderator', 'moderator'),
-        ('admin', 'admin')
+        (USER, 'user'),
+        (MODERATOR, 'moderator'),
+        (ADMIN, 'admin')
     )
     email = models.EmailField(unique=True)
-    confirmation_code = models.CharField(
-        max_length=10,
-        blank=True,
-        null=True,
-        unique=True
-    )
-    bio = models.TextField(null=True, blank=True, verbose_name="О себе")
+    bio = models.TextField(null=True, blank=True, verbose_name='О себе')
     role = models.CharField(
-        max_length=20, choices=ROLE_CHOICES, default='User')
+        max_length=20, choices=ROLE_CHOICES, default=USER)
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    @property
+    def is_admin(self):
+        return self.role == 'admin' or self.is_staff
+
+    @property
+    def is_moderator(self):
+        return self.role == 'moderator'
 
 
 class Genre(models.Model):
