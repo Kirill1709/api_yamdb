@@ -3,8 +3,9 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, serializers, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.generics import (CreateAPIView, DestroyAPIView, ListAPIView,
-                                     RetrieveAPIView, UpdateAPIView)
+from rest_framework.generics import (CreateAPIView, DestroyAPIView,
+                                     ListAPIView, RetrieveAPIView,
+                                     UpdateAPIView)
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
@@ -52,8 +53,8 @@ class GenreViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-class TitleViewSet(viewsets.GenericViewSet, CreateAPIView, DestroyAPIView, ListAPIView,
-                   RetrieveAPIView, UpdateAPIView):
+class TitleViewSet(viewsets.GenericViewSet, CreateAPIView, DestroyAPIView,
+                   ListAPIView, RetrieveAPIView, UpdateAPIView):
     queryset = Title.objects.all()
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
@@ -130,8 +131,8 @@ class UserViewSet(viewsets.ModelViewSet):
                 data=request.data,
                 partial=True
             )
-            if serializer.is_valid():
-                serializer.save()
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
 
