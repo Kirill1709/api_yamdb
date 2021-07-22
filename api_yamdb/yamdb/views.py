@@ -50,11 +50,16 @@ class GenreViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-class TitleViewSet(viewsets.ModelViewSet):
+class TitleViewSet(viewsets.GenericViewSet, CreateAPIView, DestroyAPIView, ListAPIView,
+                   RetrieveAPIView, UpdateAPIView):
     queryset = Title.objects.all()
-    permission_classes = (IsAdminOrReadOnly, )
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
+
+    def get_object(self):
+        obj = get_object_or_404(Title, pk=self.kwargs.get('pk'))
+        return obj
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
