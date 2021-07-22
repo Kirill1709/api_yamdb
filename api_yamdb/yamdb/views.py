@@ -5,11 +5,11 @@ from django.core.mail import send_mail
 from django.core.validators import validate_email
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, serializers, status, viewsets
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action, api_view
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.generics import (CreateAPIView, DestroyAPIView, ListAPIView,
-                                     RetrieveAPIView, UpdateAPIView)
+from rest_framework.generics import (CreateAPIView, DestroyAPIView,
+                                     ListAPIView, RetrieveAPIView,
+                                     UpdateAPIView)
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
@@ -20,8 +20,9 @@ from .models import Category, Genre, Review, Title, User
 from .permissions import IsAdminOrReadOnly, IsAutrhOrAdminOrModeratorOrReadOnly
 from .serializer import (CategorySerializer, CommentSerializer,
                          GenreSerializer, ReviewSerializer,
-                         TitleReadSerializer, TitleWriteSerializer, TokenSerializer,
-                         UserEmailSerializer, UserSerializer)
+                         TitleReadSerializer, TitleWriteSerializer,
+                         TokenSerializer, UserEmailSerializer,
+                         UserSerializer)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -54,8 +55,8 @@ class GenreViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-class TitleViewSet(viewsets.GenericViewSet, CreateAPIView, DestroyAPIView, ListAPIView,
-                   RetrieveAPIView, UpdateAPIView):
+class TitleViewSet(viewsets.GenericViewSet, CreateAPIView, DestroyAPIView,
+                   ListAPIView, RetrieveAPIView, UpdateAPIView):
     queryset = Title.objects.all()
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
@@ -75,25 +76,20 @@ class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = (
         IsAutrhOrAdminOrModeratorOrReadOnly, )
-    pagination_class = PageNumberPagination
 
     def get_queryset(self):
         title = get_object_or_404(
             Title, id=self.kwargs['title_id'])
-        return title.review.all()
+        return title.reviews.all()
 
     def perform_create(self, serializer):
         title = get_object_or_404(
             Title, id=self.kwargs['title_id'])
-        if Review.objects.filter(title=title,
-                                 author=self.request.user).exists():
-            raise serializers.ValidationError('Вы уже оставили рецензию!')
         serializer.save(author=self.request.user, title=title)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    pagination_class = PageNumberPagination
     permission_classes = (
         IsAutrhOrAdminOrModeratorOrReadOnly, )
 

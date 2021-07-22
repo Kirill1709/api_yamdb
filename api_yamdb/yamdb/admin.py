@@ -5,7 +5,9 @@ from .models import Category, Genre, Comment, Review, Title, User
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('text', 'title', 'pub_date', 'author', 'score', )
+    list_filter = ('title', )
+    search_fields = ('text', )
 
 
 @admin.register(Title)
@@ -26,7 +28,9 @@ class GenreAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('text', 'review', 'pub_date', 'author', )
+    list_filter = ('review', )
+    search_fields = ('text', )
 
 
 @admin.register(User)
