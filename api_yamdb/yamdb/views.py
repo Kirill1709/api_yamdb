@@ -2,12 +2,13 @@ from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 
-from rest_framework import filters, status, viewsets
+from rest_framework import filters, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.generics import (CreateAPIView, DestroyAPIView,
                                      ListAPIView, RetrieveAPIView,
                                      UpdateAPIView)
-from rest_framework.mixins import CreateModelMixin, DestroyModelMixin, ListModelMixin
+from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
+                                   ListModelMixin)
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
@@ -24,7 +25,8 @@ from .serializer import (CategorySerializer, CommentSerializer,
                          UserEmailSerializer, UserSerializer)
 
 
-class CategoryViewSet(viewsets.GenericViewSet, CreateModelMixin, DestroyModelMixin, ListModelMixin):
+class CategoryViewSet(viewsets.GenericViewSet, CreateModelMixin,
+                      DestroyModelMixin, ListModelMixin):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (IsAdminOrReadOnly,)
@@ -33,7 +35,8 @@ class CategoryViewSet(viewsets.GenericViewSet, CreateModelMixin, DestroyModelMix
     lookup_field = 'slug'
 
 
-class GenreViewSet(viewsets.GenericViewSet, CreateModelMixin, DestroyModelMixin, ListModelMixin):
+class GenreViewSet(viewsets.GenericViewSet, CreateModelMixin,
+                   DestroyModelMixin, ListModelMixin):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (IsAdminOrReadOnly,)
