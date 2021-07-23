@@ -1,8 +1,8 @@
-import datetime
-
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
+from .validators import validate_year
 
 
 class User(AbstractUser):
@@ -35,6 +35,7 @@ class Genre(models.Model):
     class Meta:
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
+        ordering = ('name',)
 
     def __str__(self):
         return self.slug
@@ -57,7 +58,7 @@ class Title(models.Model):
     name = models.CharField(max_length=200)
     year = models.PositiveSmallIntegerField(
         db_index=True,
-        validators=(MaxValueValidator(datetime.datetime.now().year),)
+        validators=(validate_year,)
     )
     description = models.TextField(blank=True, null=True)
     genre = models.ManyToManyField(Genre, blank=True)
