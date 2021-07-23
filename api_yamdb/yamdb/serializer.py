@@ -1,7 +1,7 @@
+from django.db.models import Avg
 from rest_framework import serializers
 
 from .models import Category, Comment, Genre, Review, Title, User
-from django.db.models import Avg
 
 
 class CategorySerializer(serializers.ModelSerializer):
