@@ -128,7 +128,7 @@ class UserViewSet(viewsets.ModelViewSet):
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()
-        serializer = UserSerializer(request.user)
+        serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
 
@@ -168,4 +168,4 @@ def get_token(request):
         return Response(
             data={'confirmation_code': 'Несоответствие кода подтверждения'})
     token = AccessToken.for_user(user)
-    return Response({f'token: {token}'})
+    return Response({'token': {token}})
